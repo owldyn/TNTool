@@ -1,9 +1,113 @@
 package TNTool;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader;
+import org.w3c.dom.ranges.Range;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 class SharedFunctions {
+	static String addBetween(ArrayList<String> input, String between, int sections, boolean hasRange) {
+			StringBuilder outputBuilder = new StringBuilder();
+			int arrayIndex = 0;
+
+		boolean atEnd = false;
+		if (!hasRange) {
+			int length = input.size();
+			if (sections <= 0) {
+				for (int i = 0; i < input.size(); i++) {
+					outputBuilder.append(input.get(i));
+					if (input.size() > i + 1) {
+						outputBuilder.append(between);
+					}
+				}
+			} else {
+
+				while (!atEnd) {
+					int remainingLines = length - arrayIndex;
+					if (remainingLines < sections) {
+						sections = remainingLines;
+						atEnd = true;
+					}
+
+					for (int i = 0; i < sections; i++) {
+						outputBuilder.append(input.get(arrayIndex));
+						if (sections > i + 1) {
+							outputBuilder.append(between);
+						}
+						arrayIndex++;
+					}
+					if (!atEnd) {
+						outputBuilder.append("\n");
+					}
+				}
+			}
+		} else {
+			ArrayList<String> inputRange = stringToStringArray(SingleToRangeClass.toRange(arrayToString(input)));
+			ArrayList<String> separatedRanges = new ArrayList<>();
+			ArrayList<String> separatedSingles = new ArrayList<>();
+
+			for (int i = 0; i < inputRange.size(); i++) {
+				String line = inputRange.get(i);
+				if (line.contains("-")) {
+					String range = convertIfLessThanSeven(line);
+					if (range.contains(":")) {
+						separatedRanges.add(range);
+					} else {
+						ArrayList<String> tmpArray = stringToStringArray(range);
+						separatedSingles.addAll(tmpArray);
+					}
+				} else {
+					separatedSingles.add(line);
+				}
+			}
+			int length = separatedSingles.size();
+			if (length > 0) {
+				while (!atEnd) {
+					int remainingLines = length - arrayIndex;
+					if (remainingLines < sections) {
+						sections = remainingLines;
+						atEnd = true;
+					}
+
+					for (int i = 0; i < sections; i++) {
+						outputBuilder.append(separatedSingles.get(arrayIndex));
+						if (sections > i + 1) {
+							outputBuilder.append(between);
+						}
+						arrayIndex++;
+					}
+					if (!atEnd) {
+						outputBuilder.append("\n");
+					}
+				}
+			}
+			if (separatedRanges.size() > 0) {
+				if (separatedSingles.size() > 0) {
+					outputBuilder.append("\n");
+				}
+				for (String anSeparatedRanges : separatedRanges) {
+					outputBuilder.append(anSeparatedRanges);
+				}
+			}
+		}
+		return outputBuilder.toString();
+
+	}
+	private static String convertIfLessThanSeven(String input) {
+		String inputSingles = RangeToSingleClass.toSingle(input);
+		if (countLines(inputSingles) < 7) {
+			return inputSingles;
+		} else {
+			String tmpString;
+			ArrayList<String> tmpArray = stringToStringArray(inputSingles);
+			tmpString = tmpArray.get(0) + ":" + tmpArray.get(tmpArray.size() - 1);
+			return tmpString;
+		}
+	}
+
+
+
 	static int countLines(String str) {
 		String[] lines = str.split("\r\n|\r|\n");
 		return lines.length;
@@ -11,10 +115,11 @@ class SharedFunctions {
 
 
 	static String removeSpaces(String spaceless) {
-		while (true) {
-			int i = spaceless.indexOf(' ');
-			if (i == -1) {
-				break;
+		boolean hasSpace = true;
+		while (hasSpace) {
+			int spaceIndex = spaceless.indexOf(' ');
+			if (spaceIndex == -1) {
+				hasSpace = false;
 			} else {
 				spaceless = spaceless.replace(" ","");
 			}
@@ -27,11 +132,30 @@ class SharedFunctions {
 	static String sortNumbers(String input) {
 		StringBuilder output = new StringBuilder();
 		ArrayList<Long> inputArray = stringToArray(input);
+		ArrayList<String> inputStringArray = stringToStringArray(input);
+		ArrayList<Integer> leadingZerosArray = new ArrayList<>();
 		int lines = inputArray.size();
-
+		for (int i = 0; i < inputStringArray.size(); i++) {
+			String number = inputStringArray.get(i);
+			boolean isZero = true;
+			int leadingZeros = 0;
+			while (isZero) {
+				if (number.charAt(leadingZeros) == '0') {
+					leadingZeros++;
+				} else {
+					isZero = false;
+				}
+			}
+			leadingZerosArray.add(i,leadingZeros);
+		}
 		Collections.sort(inputArray);
 
 		for (int i = 0;i < lines;i++) {
+			if (leadingZerosArray.get(i) > 0) {
+				for (int j = 0; j < leadingZerosArray.get(i);j++) {
+					output.append("0");
+				}
+			}
 			output.append(inputArray.get(i));
 			output.append("\n");
 		}
@@ -67,6 +191,15 @@ class SharedFunctions {
 		}
 
 		return unsortedArray;
+	}
+
+	static String arrayToString(ArrayList<?> inputArray) {
+		StringBuilder tmpBuilder = new StringBuilder();
+		for (Object line : inputArray) {
+			tmpBuilder.append(line.toString());
+			tmpBuilder.append("\n");
+		}
+		return tmpBuilder.toString();
 	}
 
 

@@ -2,10 +2,10 @@ package TNTool;
 
 import java.util.ArrayList;
 
-public class HistoryClass {
+public class RangeHistoryClass {
 	private ArrayList<Object> outputArray = new ArrayList<>();
 
-	HistoryClass(String i, String o, int c) {
+	RangeHistoryClass(String i, String o, int c) {
 		outputArray.add(i);
 		outputArray.add(o);
 		outputArray.add(String.valueOf(c));

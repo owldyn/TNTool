@@ -32,9 +32,15 @@ public class TNToolForm {
 	private JTextPane splitInput;
 	private JTextPane splitOutput;
 	private JTextField inputAmountOfNumbersTextField;
+	private JPanel TelcoveTools;
+	private JButton convertButton;
+	private JComboBox telcoveBox;
+	private JTextPane telcoveInput;
+	private JTextPane telcoveSwitchOutput;
+	private JTextPane telcoveRemedyOutput;
 
-	private ArrayList<HistoryClass> history = new ArrayList<HistoryClass>();
-	private ArrayList<Split> splitArray = new ArrayList<Split>();
+	private ArrayList<RangeHistoryClass> history = new ArrayList<RangeHistoryClass>();
+	private ArrayList<SplitClass> splitArray = new ArrayList<SplitClass>();
 	private int splitCount = -1;
 	private TNToolForm() {
 
@@ -102,7 +108,7 @@ public class TNToolForm {
 		compareButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<String> compared = Compare.compareLists(input1.getText(),input2.getText());
+				ArrayList<String> compared = CompareClass.compareLists(input1.getText(),input2.getText());
 				output1.setText(compared.get(0));
 				output2.setText(compared.get(1));
 				output3.setText(compared.get(2));
@@ -127,7 +133,7 @@ public class TNToolForm {
 				splitSelection.removeAllItems();
 				splitOutput.setText("");
 				try {
-					splitArray.add(splitCount, new Split(splitInput.getText(), Integer.parseInt(inputAmountOfNumbersTextField.getText())));
+					splitArray.add(splitCount, new SplitClass(splitInput.getText(), Integer.parseInt(inputAmountOfNumbersTextField.getText())));
 					for (int i = 0; i < splitArray.get(splitCount).size(); i++) {
 						splitSelection.addItem(String.valueOf(i + 1));
 					}
@@ -147,6 +153,22 @@ public class TNToolForm {
 				if (splitSelection.getSelectedIndex() >= 0) {
 					splitOutput.setText(splitArray.get(splitCount).get(splitSelection.getSelectedIndex()));
 
+				}
+			}
+		});
+		convertButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				telcoveSwitchOutput.setText("");
+				telcoveRemedyOutput.setText("");
+				if (!telcoveInput.getText().equals("")) {
+					TelcoveToolClass Remedy = new TelcoveToolClass(telcoveInput.getText(),250,"\" OR 'TELEPHONE NUMBER (DN)' = \"",Boolean.FALSE);
+					TelcoveToolClass Switch = new TelcoveToolClass(telcoveInput.getText(),7,"|",Boolean.TRUE);
+					String tmpRemedy = Remedy.get().replace("\n", "\n'TELEPHONE NUMBER (DN)' = \"");
+					telcoveRemedyOutput.setText("'TELEPHONE NUMBER (DN)' = \"" + tmpRemedy + "\"");
+					telcoveSwitchOutput.setText(Switch.get());
+				} else {
+					telcoveSwitchOutput.setText("Please input TNs into top box");
 				}
 			}
 		});
@@ -196,7 +218,7 @@ public class TNToolForm {
 			}
 		}
 		if (!exists) {
-			history.add(new HistoryClass(i,o,c));
+			history.add(new RangeHistoryClass(i,o,c));
 			comboBox1.addItem(historyString);
 			comboBox1.setSelectedItem(historyString);
 		}

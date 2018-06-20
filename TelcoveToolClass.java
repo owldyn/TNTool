@@ -7,7 +7,6 @@ public class TelcoveToolClass {
 	private int sectionCount;
 	private String betweenInput;
 	private boolean hasRange;
-	private ArrayList<Boolean> rangeMarker;
 
 
 	TelcoveToolClass(String input, int sectionSize, String between, boolean usesRange) {

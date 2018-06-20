@@ -3,9 +3,9 @@ import java.util.ArrayList;
 import static TNTool.SharedFunctions.*;
 
 
-public class Split {
+public class SplitClass {
 	private ArrayList<String> eachSplit = new ArrayList<String>();
-	public Split(String input, int size) {
+	public SplitClass(String input, int size) {
 		splitStrings(input, size);
 	}
 

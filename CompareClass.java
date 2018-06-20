@@ -3,7 +3,7 @@ package TNTool;
 import static TNTool.SharedFunctions.*;
 import java.util.ArrayList;
 
-public class Compare {
+public class CompareClass {
 	static ArrayList<String> compareLists(String input1, String input2) {
 		input1 = sortNumbers(input1);
 		input2 = sortNumbers(input2);
